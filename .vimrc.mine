@@ -1,0 +1,193 @@
+" vim:ft=vim fdm=marker:
+
+scriptencoding utf-8
+
+filetype on
+syntax on
+
+let moria_style='dark'
+let moria_monochrome=1
+colors desert
+set background=dark
+
+set fileencodings=utf-8,cp932,euc-jp
+set fileformats=unix,dos
+set encoding=utf-8
+set ambiwidth=double
+
+set number
+set wildmenu
+set wildmode=list:longest
+set wildignorecase
+
+set nobackup
+set hidden
+
+set grepprg=internal
+
+set hlsearch
+set incsearch
+
+set list
+set listchars=tab:>\ ,trail:-,nbsp:%,precedes:<
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set wrapscan
+
+set wrap
+set showcmd
+set showmatch
+set laststatus=2
+
+set virtualedit+=block
+set diffopt+=vertical
+
+set foldmethod=indent
+
+set autoindent
+set smartindent
+set nopreserveindent
+
+set showfulltag
+
+" CD command {{{
+command! -nargs=? -complete=dir -bang CD call s:ChangeCurrentDir('<args>', '<bang>') 
+function! s:ChangeCurrentDir(directory, bang)
+    if a:directory == ''
+        lcd %:p:h
+    else
+        execute 'lcd' . a:directory
+    endif
+
+    if a:bang == ''
+        pwd
+    endif
+endfunction
+" }}}
+
+" tagsの生成 {{{
+function! Ctags()
+    if &filetype == 'cpp'
+        :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q *.cpp *.h *.hpp
+    elseif &filetype == 'php'
+        :!ctags -R --PHP-kinds=+cf-v *.php
+    else
+        :!ctags -R *.*
+    endif
+endfunction
+:command! Ctags :call Ctags()
+" }}}
+
+set tags=tags;**/tags
+
+" statusline {{{
+" from: http://hail2u.net/blog/software/optimize-vim-statusline.html
+set statusline=%{expand('%:p:t')}\ %<\(%{SnipMid(expand('%:p:h'),80-len(expand('%:p:t')),'...')}\)%=\ %m%{fugitive#statusline()}%r%y%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}[%3l,%3c]
+
+function! SnipMid(str, len, mask)
+  if a:len >= len(a:str)
+    return a:str
+  elseif a:len <= len(a:mask)
+    return a:mask
+  endif
+
+  let len_head = (a:len - len(a:mask)) / 2
+  let len_tail = a:len - len(a:mask) - len_head
+
+  return (len_head > 0 ? a:str[: len_head - 1] : '') . a:mask . (len_tail > 0 ? a:str[-len_tail :] : '')
+endfunction
+" }}}
+
+" neocomplcache {{{
+let g:neocomplcache_enable_at_startup = 1
+" }}}
+
+" mappings {{{
+nnoremap j gj
+nnoremap k gk
+nnoremap gj j
+nnoremap gk k
+vnoremap j gj
+vnoremap k gk
+vnoremap gj j
+vnoremap gk k
+
+inoremap <C-f> <Right>
+inoremap <C-b> <Left>
+cnoremap <C-f> <Right>
+cnoremap <C-b> <Left>
+cnoremap <C-g> <C-f>
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+
+nnoremap <Space> :bn<CR>
+nnoremap <S-Space> :bp<CR>
+
+" <C-\>でIME切替
+inoremap  
+cnoremap  
+
+nnoremap ,w <ESC>:se wrap!<CR>
+nnoremap ,E :e ++enc=euc-jp<CR>
+nnoremap ,U :e ++enc=utf-8<CR>
+nnoremap ,S :e ++enc=cp932<CR>
+
+nnoremap <C-]> g<C-]>
+" }}}
+
+hi Pmenu ctermbg=9
+hi PmenuSel ctermbg=1
+hi PmenuSbar ctermbg=0
+hi DiffChange ctermfg=black ctermbg=green " black_on_green
+hi DiffDelete ctermfg=white ctermbg=darkgray " white_on_darkgray
+hi Search ctermfg=black ctermbg=yellow cterm=NONE,bold
+hi SpellBad ctermfg=white ctermbg=58 cterm=NONE,bold
+hi CursorLine cterm=none ctermbg=238
+hi CorsorLineNr ctermfg=165 ctermbg=148
+hi LineNr cterm=NONE ctermfg=230, ctermbg=237
+hi Visual cterm=bold ctermfg=black ctermbg=magenta
+hi Pmenu ctermbg=117 ctermfg=black
+hi PmenuSel ctermbg=20 ctermfg=white cterm=bold
+hi PmenuSbar ctermbg=7
+hi PmenuThumb ctermfg=14 ctermbg=27
+
+autocmd QuickfixCmdPost [^l]* copen
+
+" git-diff-aware version of gf commands.
+nnoremap <expr> gf  <SID>do_git_diff_aware_gf('gf')
+nnoremap <expr> gF  <SID>do_git_diff_aware_gf('gF')
+nnoremap <expr> <C-w>f  <SID>do_git_diff_aware_gf('<C-w>f')
+nnoremap <expr> <C-w><C-f>  <SID>do_git_diff_aware_gf('<C-w><C-f>')
+nnoremap <expr> <C-w>F  <SID>do_git_diff_aware_gf('<C-w>F')
+nnoremap <expr> <C-w>gf  <SID>do_git_diff_aware_gf('<C-w>gf')
+nnoremap <expr> <C-w>gF  <SID>do_git_diff_aware_gf('<C-w>gF')
+
+function! s:do_git_diff_aware_gf(command)
+    let target_path = expand('<cfile>')
+    if target_path =~# '^[ab]/'  " with a peculiar prefix of git-diff(1)?
+        if filereadable(target_path) || isdirectory(target_path)
+            return a:command
+        else
+            " BUGS: Side effect - Cursor position is changed.
+            let [_, c] = searchpos('\f\+', 'cenW')
+            return c . '|' . 'v' . (len(target_path) - 2 - 1) . 'h' . a:command
+        endif
+    else
+        return a:command
+    endif
+endfunction
+
+let NERDSpaceDelims = 1
+
+autocmd BufRead,BufNewFile,BufReadPre *.coffee set filetype=coffee
+autocmd BufRead,BufNewFile,BufReadPre *.dig set filetype=yaml
+autocmd BufRead,BufNewFile,BufReadPre *nginx*/**/*.conf set filetype=nginx
+autocmd FileType coffee setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+autocmd FileType html setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+autocmd FileType ruby setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+autocmd FileType docker-compose setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+
+source $HOME/.vimrc.local
+

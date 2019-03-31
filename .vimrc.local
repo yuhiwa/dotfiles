@@ -1,0 +1,9 @@
+set vb t_vb=
+
+set ignorecase
+set autoindent
+set smartindent
+set nopreserveindent
+
+let g:PHP_vintage_case_default_indent = 2
+
