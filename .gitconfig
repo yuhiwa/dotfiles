@@ -1,0 +1,38 @@
+; vim:ft=gitconfig noet:
+
+[push]
+	default = simple
+[rerere]
+	; refer to: http://d.hatena.ne.jp/unpush/20091010/1255186302
+	enabled = true
+[core]
+	quotepath = false
+	attributesfile = ~/.gitattributes
+	excludesfile = ~/.gitignore
+	editor = vim
+[merge]
+	tool = vimdiff
+[pager]
+	; refer to: http://motemen.hatenablog.com/entries/2013/11/26
+	log = diff-highlight | less
+	show = diff-highlight | less
+	diff = diff-highlight | less
+[color]
+	ui = auto
+[diff]
+	indentHeuristic = true
+[credential]
+	helper = cache --socket=~/.git-credential-cache/socket_$GIT_AUTHOR_NAME
+[alias]
+	st = status -s -b
+	stat = status
+	br = branch
+	co = checkout
+	ls = ls-files
+	vlog = log --pretty=format:\"%C(red)%h%Creset %C(cyan)<%an>%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset\" --abbrev-commit --date=relative
+	glog = !git vlog --graph
+	ga = !git glog --all
+	gloga = !git glog --all
+	skip = update-index --skip-worktree
+	noskip = update-index --no-skip-worktree
+	fe = fetch -p

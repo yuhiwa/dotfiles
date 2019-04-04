@@ -3,7 +3,7 @@
 install .gitattributes ~/
 install .gitconfig ~/
 install .gitignore ~/
-#install .tmux.conf ~/
+install .tmux.conf ~/
 install .vim ~/
 install .vimrc ~/
 install .vimrc.local ~/
