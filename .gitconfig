@@ -22,7 +22,7 @@
 [diff]
 	indentHeuristic = true
 [credential]
-	helper = cache --socket=~/.git-credential-cache/socket_$GIT_AUTHOR_NAME
+#	helper = cache --socket=~/.git-credential-cache/socket_$GIT_AUTHOR_NAME
 [alias]
 	st = status -s -b
 	stat = status
