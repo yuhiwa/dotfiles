@@ -38,6 +38,7 @@ Plugin '2072/PHP-Indenting-for-VIm'
 Plugin 'ekalinin/Dockerfile.vim'
 Plugin 'xwsoul/vim-zephir'
 Plugin 'thinca/vim-zenspace'
+Plugin 'pearofducks/ansible-vim'
 
 call vundle#end()
 filetype plugin indent on
